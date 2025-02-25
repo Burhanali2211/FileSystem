@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            width: 50%;
+            margin: auto;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #6200ea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #3700b3;
+        }
+
+        .file-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Admin Panel - File Upload</h2>
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">Upload</button>
+        <div class="file-list" id="fileList"></div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            if (fileInput.files.length === 0) {
+                alert("Please select a file");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            fetch("/api/upload", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    loadFiles();
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        function loadFiles() {
+            fetch("/api/files")
+                .then(response => response.json())
+                .then(files => {
+                    const fileList = document.getElementById("fileList");
+                    fileList.innerHTML = "<h3>Uploaded Files</h3>";
+                    files.forEach(file => {
+                        fileList.innerHTML += `<p>${file.name} - ${file.upload_time}</p>`;
+                    });
+                });
+        }
+        loadFiles();
+    </script>
+</body>
+
+</html>
